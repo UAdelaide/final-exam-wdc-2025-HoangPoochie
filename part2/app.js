@@ -19,12 +19,12 @@ app.use(session({
 const walkRoutes = require('./routes/walkRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/auth');
+const dogRoutes  = require('./routes/dogRoutes');
 
+app.use('/api/dogs', dogRoutes); // Mount dog routes at /api/dogs
 app.use('/api/walks', walkRoutes);
 app.use('/api/users', userRoutes);
-
-// Mount the auth router at /api
-app.use('/api', authRoutes);
+app.use('/api', authRoutes); // Mount the auth router at /api
 
 // Protect a dashboard route
 app.get('/dashboard', (req, res) => {
