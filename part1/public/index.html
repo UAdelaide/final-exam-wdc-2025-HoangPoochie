@@ -1,12 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Express</title>
-    <link rel="stylesheet" href="/stylesheets/style.css">
-</head>
+  <meta charset="UTF-8" />
+  <title>Dog-Walk Service – DOG OF THE DAY!!!</title>
 
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3"></script>
+
+  <!-- ❌  Deliberately bad styles  -->
+  <style>
+    /* Low-contrast text on garish gradients */
+    body{
+      margin:0;
+      background:linear-gradient(45deg,#ff00ff,#00ffff);
+      color:#7a7a7a;
+      font-family:"Comic Sans MS",cursive,sans-serif;
+    }
+
+    /* Spinning, flashing headline (cognitive overload) */
+    h1{
+      font-size:3.5rem;
+      text-align:center;
+      animation:spin 4s linear infinite;
+      text-shadow:2px 2px 0 #000,-2px -2px 0 #fff;
+    }
+    @keyframes spin{
+      from{transform:rotate(0deg);}
+      to{transform:rotate(360deg);}
+    }
+
+    /* Replacement for <marquee>: endless upward scroll */
+    .scroll-text{
+      overflow:hidden;
+      height:1.5em;               /* only one line visible */
+      position:relative;
+    }
+    .scroll-text span{
+      position:absolute;
+      width:100%;
+      animation:scroll 6s linear infinite;
+      font-size:1.1rem;
+      font-weight:bold;
+    }
+    @keyframes scroll{
+      0%   {top:100%;}
+      100% {top:-100%;}
+    }
+
+    /* Busy border + huge padding */
+    .dog-card{
+      border:14px dotted yellow;
+      margin:2rem;
+      padding:3rem;
+    }
+
+    /* Hue-shifted image + layout shift */
+    img{
+      width:100%;
+      display:block;
+      filter:hue-rotate(180deg) contrast(60%);
+    }
+
+    /* Tiny fixed-position button (high kinematic load) */
+    #refresh{
+      position:fixed;
+      bottom:8px;right:8px;
+      width:24px;height:24px;
+      font-size:.5rem;
+      border-radius:50%;
+      background:red;
+      color:white;
+      border:none;
+      cursor:pointer;
+      /* ❌ keyboard users lose focus ring */
+      outline:none;
+    }
+    #refresh:hover{background:lime;}
+  </style>
+</head>
 <body>
-    <h1>Express</h1>
-    <p>Welcome to Express</p>
+  <div id="app">
+    <h1>{{ headline }}</h1>
+
+    <!-- Constantly scrolling instructions – cognitive load -->
+    <div class="scroll-text" aria-hidden="true">
+      <span>REFRESH the picture by clicking the TINY ❌ BUTTON below (or shake your mouse wildly)!</span>
+    </div>
+
+    <div class="dog-card">
+      <h2>{{ dogName }}</h2>
+      <!-- Empty alt hides image from screen-readers -->
+      <img :src="dogUrl" alt="Dog" draggable="true" @dragstart.prevent>
+      <p><strong>Breed:</strong> {{ dogBreed }}</p>
+      <p><strong>Age:</strong> {{ dogAge }} YEARS!</p>
+    </div>
+
+    <!-- No accessible label, tiny hit-target -->
+    <button id="refresh" @click="getDog">↻</button>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+    createApp({
+      data(){
+        return{
+          headline:"DOG OF THE DAY!!!",
+          dogName:"Sir Barks-a-Lot",
+          dogBreed:"Mystery Mutt",
+          dogAge:Math.floor(Math.random()*15)+1,
+          dogUrl:""
+        };
+      },
+      mounted(){ this.getDog(); },
+      methods:{
+        getDog(){
+          fetch("https://dog.ceo/api/breeds/image/random")
+            .then(r=>r.json())
+            .then(({message})=>{
+              this.dogUrl=message;
+              /* Randomise background on every fetch – visual overload */
+              document.body.style.background=
+                `hsl(${Math.random()*360},100%,50%)`;
+            });
+        }
+      }
+    }).mount("#app");
+  </script>
 </body>
 </html>
