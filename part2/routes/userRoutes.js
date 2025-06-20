@@ -1,3 +1,4 @@
+// userRoutes.js
 const express = require('express');
 const router = express.Router();
 const db = require('../models/db');
@@ -49,10 +50,37 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // persist login so later routes can read it
+    req.session.user = {
+      id: rows[0].user_id,
+      username: rows[0].username,
+      role: rows[0].role
+    };
+
     res.json({ message: 'Login successful', user: rows[0] });
   } catch (error) {
     res.status(500).json({ error: 'Login failed' });
   }
 });
+
+// ─── Get current owner’s dogs ───────────────────────────────────────
+// GET /api/users/me/dogs
+router.get('/me/dogs', async (req, res) => {
+  const ownerId = req.session.user?.id;   // ID from the logged-in session
+  if (!ownerId) return res.status(401).json({ error: 'Not authenticated' });
+
+  const [rows] = await db.query(
+    `SELECT MIN(dog_id) AS dog_id, name
+      FROM Dogs
+     WHERE owner_id = ?
+  GROUP BY name
+  ORDER BY name`,
+    [ownerId]
+  );
+
+  res.json(rows);   // only that owner’s dogs
+});
+// ───────────────────────────────────────────────────────────────────
+
 
 module.exports = router;
