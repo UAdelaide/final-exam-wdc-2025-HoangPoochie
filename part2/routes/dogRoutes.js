@@ -3,7 +3,7 @@ const express = require('express');
 const db      = require('../models/db');   // or ../config/db
 const router  = express.Router();
 
-// GET /api/dogs  →  all dogs in the DB
+// GET all dogs in the DB
 router.get('/', async (_req, res) => {
   try {
     const [rows] = await db.query('SELECT dog_id, owner_id, name, size FROM Dogs');
