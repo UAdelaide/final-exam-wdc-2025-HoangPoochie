@@ -1,6 +1,6 @@
 // routes/auth.js
 const express = require('express');
-const pool = require('../models/db');    // your mysql2 promise pool
+const pool = require('../models/db');    
 const router = express.Router();
 
 router.post('/login', async (req, res) => {
